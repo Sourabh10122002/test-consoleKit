@@ -1,0 +1,148 @@
+{
+  "name": "consolekit",
+  "displayName": "ConsoleKit",
+  "description": "See console.log output and runtime errors directly in your editor, inline next to your code.",
+  "version": "0.0.1",
+  "publisher": "consolekit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sourabh10122002/consolekit"
+  },
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Other"
+  ],
+  "keywords": [
+    "console",
+    "log",
+    "debug",
+    "inline",
+    "runtime"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "consolekit.start",
+        "title": "ConsoleKit: Start",
+        "icon": "$(play)"
+      },
+      {
+        "command": "consolekit.stop",
+        "title": "ConsoleKit: Stop",
+        "icon": "$(stop)"
+      },
+      {
+        "command": "consolekit.clearLogs",
+        "title": "ConsoleKit: Clear Logs",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "consolekit.openViewer",
+        "title": "ConsoleKit: Open Log Viewer",
+        "icon": "$(list-unordered)"
+      },
+      {
+        "command": "consolekit.copyRuntime",
+        "title": "ConsoleKit: Copy Runtime Script Path",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "consolekit.testConnection",
+        "title": "ConsoleKit: Test Connection",
+        "icon": "$(beaker)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "consolekit-sidebar",
+          "title": "ConsoleKit",
+          "icon": "images/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "consolekit-sidebar": [
+        {
+          "type": "webview",
+          "id": "consolekit.logViewer",
+          "name": "Log Viewer",
+          "icon": "images/sidebar-icon.svg",
+          "contextualTitle": "ConsoleKit"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "consolekit.clearLogs",
+          "when": "view == consolekit.logViewer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "consolekit.testConnection",
+          "when": "view == consolekit.logViewer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "consolekit.start",
+          "when": "view == consolekit.logViewer",
+          "group": "navigation@3"
+        },
+        {
+          "command": "consolekit.stop",
+          "when": "view == consolekit.logViewer",
+          "group": "navigation@4"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ConsoleKit",
+      "properties": {
+        "consolekit.port": {
+          "type": "number",
+          "default": 44225,
+          "description": "Port for the ConsoleKit WebSocket server."
+        },
+        "consolekit.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable ConsoleKit."
+        },
+        "consolekit.showInlineValues": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show log values inline in the editor."
+        },
+        "consolekit.maxInlineLength": {
+          "type": "number",
+          "default": 60,
+          "description": "Maximum character length for inline log display."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^18.x",
+    "@types/vscode": "^1.85.0",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
