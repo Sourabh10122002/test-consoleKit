@@ -77,8 +77,8 @@
   function getCallerInfo() {
     var err = new Error();
     var stack = (err.stack || '').split('\n');
-    // Skip Error line + serialize + getCallerInfo + patched console + log wrapper
-    var frames = stack.slice(4);
+    // Skip only the "Error" header line. The filter in the loop will handle the rest.
+    var frames = stack.slice(1);
     var info = { file: '', line: 0, col: 0, stack: frames.join('\n') };
 
     for (var i = 0; i < frames.length; i++) {
