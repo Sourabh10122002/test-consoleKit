@@ -107,15 +107,18 @@ export class Decorator {
       // Use the level of the last (most recent) log for coloring
       const dominantLevel = logs[logs.length - 1].level;
 
+      const md = new vscode.MarkdownString(
+        logs.map((l) => `**${l.level.toUpperCase()}** \`${new Date(l.timestamp).toLocaleTimeString()}\`\n\n\`\`\`\n${l.display}\n\`\`\``).join('\n\n---\n\n')
+      );
+      md.isTrusted = true;
+
       const opts = decorationsPerLevel.get(dominantLevel) ?? [];
       opts.push({
         range,
         renderOptions: {
           after: { contentText: displayText },
         },
-        hoverMessage: new vscode.MarkdownString(
-          logs.map((l) => `**${l.level.toUpperCase()}** \`${new Date(l.timestamp).toLocaleTimeString()}\`\n\n\`\`\`\n${l.display}\n\`\`\``).join('\n\n---\n\n')
-        ),
+        hoverMessage: md,
       });
       decorationsPerLevel.set(dominantLevel, opts);
     }

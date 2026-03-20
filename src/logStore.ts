@@ -49,7 +49,23 @@ export class LogStore {
   }
 
   private _normalize(file: string): string {
-    return file.replace(/\\/g, '/').toLowerCase();
+    if (!file) return '';
+    let normalized = file.replace(/\\/g, '/');
+    
+    // Decipher encoded paths (common in browser environments)
+    if (normalized.includes('%')) {
+      try { normalized = decodeURIComponent(normalized); } catch {}
+    }
+
+    // Strip file:// prefix if somehow it reached here
+    normalized = normalized.replace(/^file:\/\/\/?/, '/');
+
+    // On Windows, paths might be /c:/foo or c:/foo. Standardize to c:/foo
+    if (/^\/[a-zA-Z]:/.test(normalized)) {
+      normalized = normalized.slice(1);
+    }
+
+    return normalized.toLowerCase();
   }
 
   getLogsForLine(file: string, line: number): LogEntry[] {

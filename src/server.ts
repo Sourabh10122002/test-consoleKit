@@ -120,9 +120,16 @@ export class ConsoleKitServer {
   }
 
   private _normalizePath(filePath: string): string {
-    // Handle file:// URIs
+    if (!filePath) return '';
+    // Handle file:// URIs (RFC 8089)
     if (filePath.startsWith('file://')) {
-      filePath = decodeURIComponent(filePath.replace(/^file:\/\//, ''));
+      try {
+        const url = new URL(filePath);
+        // On Windows, url.pathname might be /C:/foo, on Unix it's /foo
+        filePath = decodeURIComponent(url.pathname);
+      } catch {
+        filePath = decodeURIComponent(filePath.replace(/^file:\/\/\/?/, '/'));
+      }
     }
     return filePath;
   }

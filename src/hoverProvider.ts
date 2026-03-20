@@ -13,7 +13,14 @@ export class HoverProvider implements vscode.HoverProvider {
     const line = position.line + 1;
 
     const logs = this.logStore.getLogsForLine(filePath, line);
-    if (logs.length === 0) return null;
+    
+    // Debug logging to help identify why hovers might be missing
+    const output = vscode.window.createOutputChannel('ConsoleKit Debug');
+    if (logs.length === 0) {
+      // Uncomment for deep debugging if needed
+      // output.appendLine(`[Hover] No logs for ${filePath}:${line}`);
+      return null;
+    }
 
     const md = new vscode.MarkdownString('', true);
     md.isTrusted = true;
@@ -57,7 +64,8 @@ export class HoverProvider implements vscode.HoverProvider {
       md.appendMarkdown('\n---\n\n');
     }
 
-    return new vscode.Hover(md);
+    const range = document.lineAt(position.line).range;
+    return new vscode.Hover(md, range);
   }
 }
 
