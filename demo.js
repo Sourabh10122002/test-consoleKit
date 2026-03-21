@@ -21,7 +21,7 @@ console.error('This is an error log.');
 console.info('This is an info log.');
 console.debug('This is a debug log.');
 
-// Objects (will be expandable in the sidebar)
+// Objects
 const user = {
     id: 1,
     name: 'Sourabh',

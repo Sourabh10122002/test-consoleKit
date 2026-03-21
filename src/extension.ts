@@ -5,7 +5,6 @@ import { ConsoleKitServer } from './server';
 import { Decorator } from './decorator';
 import { HoverProvider } from './hoverProvider';
 import { StatusBarManager } from './statusBar';
-import { LogViewerPanel } from './webviewPanel';
 
 let serverInstance: ConsoleKitServer | null = null;
 let statusBarInstance: StatusBarManager | null = null;
@@ -41,15 +40,6 @@ export function activate(context: vscode.ExtensionContext): void {
   
   console.log(`ConsoleKit: Injected NODE_OPTIONS: ${nodeOptions}`);
 
-  // Register the Sidebar WebView
-  const logViewerProvider = new LogViewerPanel(context, logStore);
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(
-      LogViewerPanel.viewId,
-      logViewerProvider,
-      { webviewOptions: { retainContextWhenHidden: true } }
-    )
-  );
 
   // Register hover provider for all languages
   context.subscriptions.push(
@@ -89,9 +79,6 @@ export function activate(context: vscode.ExtensionContext): void {
       logStore.clear();
     }),
 
-    vscode.commands.registerCommand('consolekit.openViewer', () => {
-      vscode.commands.executeCommand('consolekit.logViewer.focus');
-    }),
 
     vscode.commands.registerCommand('consolekit.copyRuntime', () => {
       const runtimePath = path.join(context.extensionPath, 'runtime', 'consolekit-runtime.js');

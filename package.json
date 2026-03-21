@@ -45,11 +45,6 @@
         "icon": "$(clear-all)"
       },
       {
-        "command": "consolekit.openViewer",
-        "title": "ConsoleKit: Open Log Viewer",
-        "icon": "$(list-unordered)"
-      },
-      {
         "command": "consolekit.copyRuntime",
         "title": "ConsoleKit: Copy Runtime Script Path",
         "icon": "$(copy)"
@@ -60,49 +55,7 @@
         "icon": "$(beaker)"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "consolekit-sidebar",
-          "title": "ConsoleKit",
-          "icon": "images/sidebar-icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "consolekit-sidebar": [
-        {
-          "type": "webview",
-          "id": "consolekit.logViewer",
-          "name": "Log Viewer",
-          "icon": "images/sidebar-icon.svg",
-          "contextualTitle": "ConsoleKit"
-        }
-      ]
-    },
     "menus": {
-      "view/title": [
-        {
-          "command": "consolekit.clearLogs",
-          "when": "view == consolekit.logViewer",
-          "group": "navigation@1"
-        },
-        {
-          "command": "consolekit.testConnection",
-          "when": "view == consolekit.logViewer",
-          "group": "navigation@2"
-        },
-        {
-          "command": "consolekit.start",
-          "when": "view == consolekit.logViewer",
-          "group": "navigation@3"
-        },
-        {
-          "command": "consolekit.stop",
-          "when": "view == consolekit.logViewer",
-          "group": "navigation@4"
-        }
-      ]
     },
     "configuration": {
       "title": "ConsoleKit",

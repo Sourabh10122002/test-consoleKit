@@ -10,8 +10,7 @@ ConsoleKit is a VS Code extension inspired by Console Ninja Pro. It patches your
 
 - **Inline log values** — colored ghost text next to each logged line (green=log, yellow=warn, red=error)
 - **Hover tooltips** — hover a decorated line to see full values, timestamps, and stack traces
-- **Log Viewer sidebar** — searchable, filterable chronological log list with JSON expand/collapse
-- **Click to navigate** — click any log entry to jump to the source line
+- **Click to navigate** — click any log entry (if applicable) or use hover to see source location
 - **Auto-reconnect** — the runtime automatically reconnects if the extension restarts
 - **Auto-start** — starts automatically on VS Code startup
 
@@ -61,7 +60,6 @@ Decorations appear inline in your editor next to these lines. ✅
 | `ConsoleKit: Start` | Start the WebSocket server |
 | `ConsoleKit: Stop` | Stop the server |
 | `ConsoleKit: Clear Logs` | Clear all stored logs |
-| `ConsoleKit: Open Log Viewer` | Focus the sidebar panel |
 | `ConsoleKit: Copy Runtime Script Path` | Copy path to the runtime JS file |
 
 ---
@@ -84,9 +82,8 @@ Your App (browser / Node.js)
   └─ consolekit-runtime.js  ← patches console.*
         └─ WebSocket → ws://localhost:44225
                            └─ ConsoleKit Extension
-                                ├─ Inline Decorations
-                                ├─ Hover Provider
-                                └─ Sidebar Log Viewer
+                                 ├─ Inline Decorations
+                                 └─ Hover Provider
 ```
 
 ---
