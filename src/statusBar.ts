@@ -14,8 +14,7 @@ export class StatusBarManager {
       vscode.StatusBarAlignment.Right,
       100
     );
-    this._item.command = 'consolekit.openViewer';
-    this._item.tooltip = 'ConsoleKit — Click to open log viewer';
+    this._item.tooltip = 'ConsoleKit';
 
     this._update();
     this._item.show();
