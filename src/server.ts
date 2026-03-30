@@ -14,7 +14,7 @@ export class ConsoleKitServer {
   public readonly onDidConnect = this._onDidConnect.event;
   public readonly onDidDisconnect = this._onDidDisconnect.event;
 
-  constructor(private readonly logStore: LogStore) {}
+  constructor(private readonly logStore: LogStore) { }
 
   get isRunning(): boolean {
     return this._isRunning;
@@ -60,9 +60,14 @@ export class ConsoleKitServer {
         resolve();
       });
 
-      this._httpServer.on('error', (err) => {
+      this._httpServer.on('error', (err: any) => {
         this._isRunning = false;
-        reject(err);
+        if (err.code === 'EADDRINUSE') {
+          reject(new Error(`Port ${port} is already in use by another process.`));
+        } else {
+          reject(err);
+        }
+        this.stop(); // Ensure cleanup
       });
     });
   }

@@ -57,14 +57,20 @@ export class LogStore {
       try { normalized = decodeURIComponent(normalized); } catch {}
     }
 
-    // Strip file:// prefix if somehow it reached here
+    // Strip file:// prefix
     normalized = normalized.replace(/^file:\/\/\/?/, '/');
+
+    // On macOS, /tmp is a symlink to /private/tmp. Standardize to /tmp
+    if (normalized.startsWith('/private/tmp/')) {
+      normalized = normalized.replace('/private/tmp/', '/tmp/');
+    }
 
     // On Windows, paths might be /c:/foo or c:/foo. Standardize to c:/foo
     if (/^\/[a-zA-Z]:/.test(normalized)) {
       normalized = normalized.slice(1);
     }
 
+    // Use lowercase for matching on case-insensitive systems (Mac/Win)
     return normalized.toLowerCase();
   }
 

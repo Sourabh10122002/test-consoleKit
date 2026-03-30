@@ -17,8 +17,8 @@
   'use strict';
 
   const CONSOLEKIT_PORT = 44225;
-  const RECONNECT_DELAY  = 3000;
-  const MAX_DEPTH        = 4;
+  const RECONNECT_DELAY = 3000;
+  const MAX_DEPTH = 4;
 
   let ws = null;
   let queue = [];
@@ -35,26 +35,26 @@
 
     const type = typeof value;
 
-    if (type === 'string')   return JSON.stringify(value);
-    if (type === 'number')   return isFinite(value) ? String(value) : '"' + String(value) + '"';
-    if (type === 'boolean')  return String(value);
+    if (type === 'string') return JSON.stringify(value);
+    if (type === 'number') return isFinite(value) ? String(value) : '"' + String(value) + '"';
+    if (type === 'boolean') return String(value);
     if (type === 'function') return '"[Function: ' + (value.name || 'anonymous') + ']"';
-    if (type === 'symbol')   return '"' + String(value) + '"';
-    if (type === 'bigint')   return '"' + String(value) + 'n"';
+    if (type === 'symbol') return '"' + String(value) + '"';
+    if (type === 'bigint') return '"' + String(value) + 'n"';
 
     if (value instanceof Error) {
       return JSON.stringify({ __type: 'Error', name: value.name, message: value.message, stack: value.stack });
     }
 
     if (Array.isArray(value)) {
-      const items = value.slice(0, 50).map(function(v) { return serialize(v, depth + 1); });
+      const items = value.slice(0, 50).map(function (v) { return serialize(v, depth + 1); });
       return '[' + items.join(',') + (value.length > 50 ? ',"…"' : '') + ']';
     }
 
     if (type === 'object') {
       try {
         const keys = Object.keys(value).slice(0, 30);
-        const pairs = keys.map(function(k) {
+        const pairs = keys.map(function (k) {
           return JSON.stringify(k) + ':' + serialize(value[k], depth + 1);
         });
         return '{' + pairs.join(',') + (Object.keys(value).length > 30 ? ',"…":"…"' : '') + '}';
@@ -67,8 +67,8 @@
   }
 
   function serializeArgs(args) {
-    return Array.from(args).map(function(a) {
-      try { return JSON.parse(serialize(a)); } catch(e) { return String(a); }
+    return Array.from(args).map(function (a) {
+      try { return JSON.parse(serialize(a)); } catch (e) { return String(a); }
     });
   }
 
@@ -92,7 +92,7 @@
         if (filePath === '<anonymous>') continue;
         info.file = filePath;
         info.line = parseInt(atMatch[2], 10);
-        info.col  = parseInt(atMatch[3], 10);
+        info.col = parseInt(atMatch[3], 10);
         break;
       }
     }
@@ -104,28 +104,42 @@
 
   function connect() {
     try {
-      var WebSocketClass = (typeof WebSocket !== 'undefined')
-        ? WebSocket
-        : require('ws');  // Node.js fallback
+      var WebSocketClass = null;
+
+      if (typeof WebSocket !== 'undefined') {
+        WebSocketClass = WebSocket;
+      } else {
+        try {
+          WebSocketClass = require('ws');
+        } catch (e) {
+          if (!global.__consolekit_warned) {
+             console.warn('[ConsoleKit] WebSocket implementation (ws) not found. Zero-config logs disabled for this process.');
+             global.__consolekit_warned = true;
+          }
+          return;
+        }
+      }
+
+      if (!WebSocketClass) return;
 
       ws = new WebSocketClass('ws://127.0.0.1:' + CONSOLEKIT_PORT);
 
-      ws.onopen = function() {
+      ws.onopen = function () {
         connected = true;
         // Flush queued messages
-        queue.forEach(function(msg) {
-          try { ws.send(msg); } catch(e) {}
+        queue.forEach(function (msg) {
+          try { ws.send(msg); } catch (e) { }
         });
         queue = [];
       };
 
-      ws.onclose = function() {
+      ws.onclose = function () {
         connected = false;
         ws = null;
         setTimeout(connect, RECONNECT_DELAY);
       };
 
-      ws.onerror = function() {
+      ws.onerror = function () {
         // Silently ignore — onclose will handle reconnect
       };
     } catch (e) {
@@ -136,7 +150,7 @@
   function send(payload) {
     var msg = JSON.stringify(payload);
     if (connected && ws && ws.readyState === 1 /* OPEN */) {
-      try { ws.send(msg); } catch(e) { queue.push(msg); }
+      try { ws.send(msg); } catch (e) { queue.push(msg); }
     } else {
       // Cap queue to avoid memory leaks
       if (queue.length < 500) queue.push(msg);
@@ -148,10 +162,10 @@
   var originalConsole = {};
   var levels = ['log', 'warn', 'error', 'info', 'debug', 'trace'];
 
-  levels.forEach(function(level) {
+  levels.forEach(function (level) {
     originalConsole[level] = (console[level] || console.log).bind(console);
 
-    console[level] = function() {
+    console[level] = function () {
       // Call original first
       originalConsole[level].apply(console, arguments);
 
@@ -159,14 +173,14 @@
       var caller = getCallerInfo();
 
       var payload = {
-        type      : 'log',
-        level     : level,
-        file      : caller.file,
-        line      : caller.line,
-        col       : caller.col,
-        args      : serializeArgs(arguments),
-        timestamp : Date.now(),
-        stack     : caller.stack,
+        type: 'log',
+        level: level,
+        file: caller.file,
+        line: caller.line,
+        col: caller.col,
+        args: serializeArgs(arguments),
+        timestamp: Date.now(),
+        stack: caller.stack,
       };
 
       send(payload);
@@ -177,37 +191,37 @@
 
   function handleError(message, source, lineno, colno, error) {
     var payload = {
-      type      : 'log',
-      level     : 'error',
-      file      : source || '',
-      line      : lineno || 0,
-      col       : colno  || 0,
-      args      : [{ __type: 'Error', message: String(message), stack: error ? error.stack : '' }],
-      timestamp : Date.now(),
-      stack     : error ? error.stack : '',
+      type: 'log',
+      level: 'error',
+      file: source || '',
+      line: lineno || 0,
+      col: colno || 0,
+      args: [{ __type: 'Error', message: String(message), stack: error ? error.stack : '' }],
+      timestamp: Date.now(),
+      stack: error ? error.stack : '',
     };
     send(payload);
   }
 
   if (typeof window !== 'undefined') {
     var prevOnerror = window.onerror;
-    window.onerror = function(message, source, lineno, colno, error) {
+    window.onerror = function (message, source, lineno, colno, error) {
       handleError(message, source, lineno, colno, error);
       if (prevOnerror) return prevOnerror.apply(this, arguments);
       return false;
     };
 
-    window.addEventListener('unhandledrejection', function(e) {
+    window.addEventListener('unhandledrejection', function (e) {
       var reason = e.reason;
       var payload = {
-        type      : 'log',
-        level     : 'error',
-        file      : '',
-        line      : 0,
-        col       : 0,
-        args      : [{ __type: 'UnhandledRejection', message: reason instanceof Error ? reason.message : String(reason), stack: reason instanceof Error ? reason.stack : '' }],
-        timestamp : Date.now(),
-        stack     : reason instanceof Error ? reason.stack : '',
+        type: 'log',
+        level: 'error',
+        file: '',
+        line: 0,
+        col: 0,
+        args: [{ __type: 'UnhandledRejection', message: reason instanceof Error ? reason.message : String(reason), stack: reason instanceof Error ? reason.stack : '' }],
+        timestamp: Date.now(),
+        stack: reason instanceof Error ? reason.stack : '',
       };
       send(payload);
     });
@@ -215,16 +229,16 @@
 
   // Node.js uncaught exceptions
   if (typeof process !== 'undefined' && process.on) {
-    process.on('uncaughtException', function(err) {
+    process.on('uncaughtException', function (err) {
       var payload = {
-        type      : 'log',
-        level     : 'error',
-        file      : '',
-        line      : 0,
-        col       : 0,
-        args      : [{ __type: 'UncaughtException', message: err.message, stack: err.stack }],
-        timestamp : Date.now(),
-        stack     : err.stack,
+        type: 'log',
+        level: 'error',
+        file: '',
+        line: 0,
+        col: 0,
+        args: [{ __type: 'UncaughtException', message: err.message, stack: err.stack }],
+        timestamp: Date.now(),
+        stack: err.stack,
       };
       send(payload);
     });

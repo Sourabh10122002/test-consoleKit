@@ -14,7 +14,7 @@ let logStoreInstance: LogStore | null = null;
 export function activate(context: vscode.ExtensionContext): void {
   console.log('ConsoleKit: Activating Zero-Config Mode...');
   const outputChannel = vscode.window.createOutputChannel('ConsoleKit');
-  
+
   const logStore = new LogStore();
   logStoreInstance = logStore;
   console.log('ConsoleKit: LogStore initialized');
@@ -32,12 +32,12 @@ export function activate(context: vscode.ExtensionContext): void {
   // Injection Logic (Zero-Config)
   const runtimePath = path.join(context.extensionPath, 'runtime', 'consolekit-runtime.js');
   const env = context.environmentVariableCollection;
-  
+
   // Use --require for automatic injection in Node process
   // We use prepend to ensure it's loaded first
   const nodeOptions = `--require "${runtimePath}"`;
   env.prepend('NODE_OPTIONS', nodeOptions + ' ');
-  
+
   console.log(`ConsoleKit: Injected NODE_OPTIONS: ${nodeOptions}`);
 
 
@@ -49,6 +49,23 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
 
+  // Helper to start the server
+  async function startServer() {
+    if (server.isRunning) return;
+
+    const port = vscode.workspace.getConfiguration('consolekit').get<number>('port', 44225);
+    try {
+      console.log(`ConsoleKit: Starting server on port ${port}...`);
+      await server.start(port);
+      console.log(`ConsoleKit: Server started successfully`);
+      vscode.window.showInformationMessage(`ConsoleKit started on ws://localhost:${port} 🚀`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`ConsoleKit: Failed to start: ${msg}`);
+      vscode.window.showErrorMessage(`ConsoleKit failed to start: ${msg}`);
+    }
+  }
+
   // Commands
   context.subscriptions.push(
     vscode.commands.registerCommand('consolekit.start', async () => {
@@ -56,18 +73,7 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.window.showInformationMessage('ConsoleKit is already running.');
         return;
       }
-      const port = vscode.workspace.getConfiguration('consolekit').get<number>('port', 44225);
-      try {
-        console.log(`ConsoleKit: Starting server on port ${port}...`);
-        await server.start(port);
-        console.log(`ConsoleKit: Server started`);
-        vscode.window.showInformationMessage(
-          `ConsoleKit started on ws://localhost:${port} 🚀`
-        );
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        vscode.window.showErrorMessage(`ConsoleKit failed to start: ${msg}`);
-      }
+      await startServer();
     }),
 
     vscode.commands.registerCommand('consolekit.stop', async () => {
@@ -96,10 +102,10 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('consolekit.testConnection', () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) return;
-      
+
       const line = editor.selection.active.line + 1;
       const file = editor.document.uri.fsPath;
-      
+
       logStore.addLog({
         level: 'info',
         file,
@@ -108,7 +114,7 @@ export function activate(context: vscode.ExtensionContext): void {
         args: ['✨ ConsoleKit connection test successful!'],
         timestamp: Date.now()
       });
-      
+
       vscode.window.showInformationMessage('Sent test log to current line!');
     })
   );
@@ -116,7 +122,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Auto-start if enabled
   const config = vscode.workspace.getConfiguration('consolekit');
   if (config.get<boolean>('enabled', true)) {
-    vscode.commands.executeCommand('consolekit.start');
+    startServer();
   }
 
   // Dispose everything on deactivation
