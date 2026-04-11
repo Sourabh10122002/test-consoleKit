@@ -96,6 +96,7 @@ export class LogStore {
 
   dispose(): void {
     this._onDidUpdateLogs.dispose();
+    this._outputChannel.dispose();
   }
 
   private _buildDisplay(args: unknown[]): string {

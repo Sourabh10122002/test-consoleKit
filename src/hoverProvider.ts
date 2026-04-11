@@ -13,12 +13,7 @@ export class HoverProvider implements vscode.HoverProvider {
     const line = position.line + 1;
 
     const logs = this.logStore.getLogsForLine(filePath, line);
-    
-    // Debug logging to help identify why hovers might be missing
-    const output = vscode.window.createOutputChannel('ConsoleKit Debug');
     if (logs.length === 0) {
-      // Uncomment for deep debugging if needed
-      // output.appendLine(`[Hover] No logs for ${filePath}:${line}`);
       return null;
     }
 

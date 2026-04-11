@@ -61,13 +61,16 @@ export class ConsoleKitServer {
       });
 
       this._httpServer.on('error', (err: any) => {
+        this._wss?.close();
+        this._httpServer?.close();
+        this._wss = null;
+        this._httpServer = null;
         this._isRunning = false;
         if (err.code === 'EADDRINUSE') {
           reject(new Error(`Port ${port} is already in use by another process.`));
         } else {
           reject(err);
         }
-        this.stop(); // Ensure cleanup
       });
     });
   }
@@ -101,7 +104,15 @@ export class ConsoleKitServer {
   }
 
   dispose(): void {
-    this.stop();
+    // Terminate clients directly instead of going through stop(),
+    // since stop() fires events asynchronously after emitters are disposed.
+    for (const client of this._clients) client.terminate();
+    this._clients.clear();
+    this._wss?.close();
+    this._httpServer?.close();
+    this._wss = null;
+    this._httpServer = null;
+    this._isRunning = false;
     this._onDidConnect.dispose();
     this._onDidDisconnect.dispose();
   }

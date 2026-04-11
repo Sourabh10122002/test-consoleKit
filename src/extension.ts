@@ -13,8 +13,6 @@ let logStoreInstance: LogStore | null = null;
 
 export function activate(context: vscode.ExtensionContext): void {
   console.log('ConsoleKit: Activating Zero-Config Mode...');
-  const outputChannel = vscode.window.createOutputChannel('ConsoleKit');
-
   const logStore = new LogStore();
   logStoreInstance = logStore;
   console.log('ConsoleKit: LogStore initialized');
@@ -35,7 +33,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Use --require for automatic injection in Node process
   // We use prepend to ensure it's loaded first
-  const nodeOptions = `--require "${runtimePath}"`;
+  const nodeOptions = `--require ${runtimePath}`;
   env.prepend('NODE_OPTIONS', nodeOptions + ' ');
 
   console.log(`ConsoleKit: Injected NODE_OPTIONS: ${nodeOptions}`);

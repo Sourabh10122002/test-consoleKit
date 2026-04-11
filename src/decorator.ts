@@ -131,5 +131,6 @@ export class Decorator {
   dispose(): void {
     for (const d of this._disposables) d.dispose();
     for (const dt of Object.values(decorationTypes)) dt.dispose();
+    for (const key of Object.keys(decorationTypes)) delete decorationTypes[key];
   }
 }
